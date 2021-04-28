@@ -222,3 +222,42 @@ class StopWordsKorean(StopWords):
         stats.set_stopword_count(len(overlapping_stopwords))
         stats.set_stop_words(overlapping_stopwords)
         return stats
+
+
+class StopWordsArmenian(StopWords):
+    """
+    Armenian segmentation
+    """
+    def __init__(self, language='hy'):
+        super(StopWordsArmenian, self).__init__(language='hy')
+
+    @staticmethod
+    def candidate_words(stripped_input):
+        return re.split(SPACE_SYMBOLS, stripped_input)
+
+    @staticmethod
+    def remove_punctuation(content):
+        # code taken form
+        # http://stackoverflow.com/questions/265960/best-way-to-strip-punctuation-from-a-string-in-python
+        if not isinstance(content, str):
+            content = content.decode('utf-8')
+        tbl = dict.fromkeys(ord(x) for x in string.punctuation)
+        return content.translate(tbl)
+
+    def get_stopword_count(self, content):
+        if not content:
+            return WordStats()
+        stats = WordStats()
+        stripped_input = self.remove_punctuation(content)
+        candidate_words = self.candidate_words(stripped_input)
+        overlapping_stopwords = []
+        i = 0
+        for word in candidate_words:
+            i += 1
+            if word.lower() in self._stop_words:
+                overlapping_stopwords.append(word.lower())
+
+        stats.set_word_count(i)
+        stats.set_stopword_count(len(overlapping_stopwords))
+        stats.set_stop_words(overlapping_stopwords)
+        return stats
